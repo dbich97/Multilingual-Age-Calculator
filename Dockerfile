@@ -5,7 +5,7 @@ WORKDIR /app
 
 # انسخ فقط الملفات المهمة أولاً عشان caching
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # انسخ باقي الملفات
 COPY . .
