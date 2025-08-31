@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import type { Age, Translation, LanguageCode } from '../types';
+import type { Age, Translation, LanguageCode, AdditionalInfo } from '../types';
 import { LanguageCode as LangEnum } from '../types';
-import { calculateAge, hijriToGregorian } from '../lib/utils';
+import { calculateAge, hijriToGregorian, getSeason, calculateNextBirthdayCountdown } from '../lib/utils';
 import AgeCalculatorForm from '../components/AgeCalculatorForm';
 import AgeResult from '../components/AgeResult';
 import CalendarSelector from '../components/CalendarSelector';
@@ -30,6 +30,7 @@ const AgeCalculatorPage: React.FC = () => {
   const [month, setMonth] = useState<string>('');
   const [year, setYear] = useState<string>('');
   const [age, setAge] = useState<Age | null>(null);
+  const [additionalInfo, setAdditionalInfo] = useState<AdditionalInfo | null>(null);
   const [error, setError] = useState<string>('');
   const [calendar, setCalendar] = useState<Calendar>('gregorian');
 
@@ -48,15 +49,18 @@ const AgeCalculatorPage: React.FC = () => {
     setMonth('');
     setYear('');
     setAge(null);
+    setAdditionalInfo(null);
     setError('');
     setCalendar('gregorian');
   }, [t, currentLang]);
 
   
   const handleCalculate = () => {
+    setAge(null);
+    setAdditionalInfo(null);
+
     if (!day || !month || !year) {
       setError(t.errorInvalidDate);
-      setAge(null);
       return;
     }
 
@@ -69,7 +73,6 @@ const AgeCalculatorPage: React.FC = () => {
         birthDateObj = new Date(birthDateStr);
     }
 
-
     if (calendar === 'gregorian') {
       if (
         isNaN(birthDateObj.getTime()) ||
@@ -78,24 +81,32 @@ const AgeCalculatorPage: React.FC = () => {
         birthDateObj.getDate() !== parseInt(day)
       ) {
         setError(t.errorInvalidDate);
-        setAge(null);
         return;
       }
     }
      if (isNaN(birthDateObj.getTime())) {
         setError(t.errorInvalidDate);
-        setAge(null);
         return;
     }
     
     if (birthDateObj > new Date()) {
       setError(t.errorFutureDate);
-      setAge(null);
       return;
     }
     
     setError('');
     setAge(calculateAge(birthDateObj));
+
+    // Calculate additional info
+    const dayIndex = birthDateObj.getDay();
+    const dayOfWeek = t.daysOfWeekArray[dayIndex];
+
+    const seasonIndex = getSeason(birthDateObj);
+    const season = t.seasonsArray[seasonIndex];
+
+    const nextBirthday = calculateNextBirthdayCountdown(birthDateObj);
+
+    setAdditionalInfo({ dayOfWeek, season, nextBirthday });
   };
 
   const handleCalendarChange = (newCalendar: Calendar) => {
@@ -104,6 +115,7 @@ const AgeCalculatorPage: React.FC = () => {
     setMonth('');
     setYear('');
     setAge(null);
+    setAdditionalInfo(null);
     setError('');
   };
 
@@ -134,7 +146,7 @@ const AgeCalculatorPage: React.FC = () => {
               calendar={calendar}
               lang={currentLang}
             />
-            {age && <AgeResult age={age} t={t} />}
+            {age && <AgeResult age={age} additionalInfo={additionalInfo} t={t} />}
         </section>
 
         {/* Secondary Content Sections */}

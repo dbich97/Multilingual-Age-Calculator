@@ -109,10 +109,24 @@ export interface Translation {
   shareResultTitle: string;
   copyResultButton: string;
   resultCopiedTooltip: string;
+
+  // More info section
+  moreInfoTitle: string;
+  dayOfWeekLabel: string;
+  seasonLabel: string;
+  nextBirthdayLabel: string;
+  daysOfWeekArray: string[];
+  seasonsArray: string[];
 }
 
 export interface Age {
   years: number;
   months: number;
   days: number;
+}
+
+export interface AdditionalInfo {
+  dayOfWeek: string;
+  season: string;
+  nextBirthday: number;
 }

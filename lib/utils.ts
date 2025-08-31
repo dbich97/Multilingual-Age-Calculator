@@ -25,6 +25,57 @@ export function calculateAge(birthDate: Date): Age {
 }
 
 /**
+ * Calculates the season for a given date (Northern Hemisphere).
+ * @param date - The date.
+ * @returns Season index (0: Winter, 1: Spring, 2: Summer, 3: Autumn).
+ */
+export function getSeason(date: Date): number {
+  const month = date.getMonth();
+  const day = date.getDate();
+
+  // Astrological season start dates
+  if ((month === 11 && day >= 21) || month === 0 || month === 1 || (month === 2 && day < 20)) {
+    return 0; // Winter
+  } else if ((month === 2 && day >= 20) || month === 3 || month === 4 || (month === 5 && day < 21)) {
+    return 1; // Spring
+  } else if ((month === 5 && day >= 21) || month === 6 || month === 7 || (month === 8 && day < 22)) {
+    return 2; // Summer
+  } else {
+    return 3; // Autumn
+  }
+}
+
+/**
+ * Calculates the number of days until the next birthday.
+ * @param birthDate - The date of birth.
+ * @returns The number of days until the next birthday.
+ */
+export function calculateNextBirthdayCountdown(birthDate: Date): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const birthMonth = birthDate.getMonth();
+  const birthDay = birthDate.getDate();
+  const currentYear = today.getFullYear();
+
+  let nextBirthday = new Date(currentYear, birthMonth, birthDay);
+
+  if (nextBirthday.getTime() === today.getTime()) {
+    return 0;
+  }
+  
+  if (nextBirthday < today) {
+    nextBirthday.setFullYear(currentYear + 1);
+  }
+
+  const oneDay = 1000 * 60 * 60 * 24;
+  const diffDays = Math.ceil((nextBirthday.getTime() - today.getTime()) / oneDay);
+  
+  return diffDays;
+}
+
+
+/**
  * Gets the current Hijri year using the Intl API.
  * @returns The current Hijri year as a number.
  */

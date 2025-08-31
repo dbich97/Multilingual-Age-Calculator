@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
-import type { Age, Translation } from '../types';
+import type { Age, Translation, AdditionalInfo } from '../types';
 
 interface AgeResultProps {
   age: Age;
+  additionalInfo: AdditionalInfo | null;
   t: Translation;
 }
 
@@ -14,7 +15,17 @@ const StatCard: React.FC<{ value: number; label: string }> = ({ value, label }) 
     </div>
 );
 
-const AgeResult: React.FC<AgeResultProps> = ({ age, t }) => {
+const InfoRow: React.FC<{ icon: React.ReactNode; label: string; value: string | number }> = ({ icon, label, value }) => (
+    <li className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+        <div className="flex items-center">
+            <span className="mr-3 rtl:mr-0 rtl:ml-3 text-blue-500 dark:text-blue-400">{icon}</span>
+            <span className="text-gray-700 dark:text-gray-300">{label}</span>
+        </div>
+        <span className="font-semibold text-gray-800 dark:text-white">{value}</span>
+    </li>
+);
+
+const AgeResult: React.FC<AgeResultProps> = ({ age, additionalInfo, t }) => {
     const [isCopied, setIsCopied] = useState(false);
 
     const shareText = t.shareResultText
@@ -72,6 +83,10 @@ const AgeResult: React.FC<AgeResultProps> = ({ age, t }) => {
         });
     };
 
+    const calendarIcon = <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>;
+    const seasonIcon = <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 4 13H2a10 10 0 0 0 10 10z"/><path d="M12 12a10 10 0 0 0 10-10V2z"/></svg>;
+    const giftIcon = <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>;
+
 
   return (
     <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 animate-fade-in">
@@ -88,6 +103,17 @@ const AgeResult: React.FC<AgeResultProps> = ({ age, t }) => {
             <StatCard value={age.months} label={t.months} />
             <StatCard value={age.days} label={t.days} />
         </div>
+
+        {additionalInfo && (
+            <div className="mt-8">
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4 text-center">{t.moreInfoTitle}</h3>
+                <ul className="space-y-3">
+                    <InfoRow icon={calendarIcon} label={t.dayOfWeekLabel} value={additionalInfo.dayOfWeek} />
+                    <InfoRow icon={seasonIcon} label={t.seasonLabel} value={additionalInfo.season} />
+                    <InfoRow icon={giftIcon} label={t.nextBirthdayLabel} value={`${additionalInfo.nextBirthday} ${t.days}`} />
+                </ul>
+            </div>
+        )}
 
         <div className="mt-8 text-center">
             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">{t.shareResultTitle}</h3>
